@@ -1,0 +1,26 @@
+# Build
+# Required arguments:
+# branch: Branch the image. E.g.: dev
+# build_id: ID of the build. E.g.: 1000
+
+version: "3"
+services:
+
+  is_running_in_docker:
+    build:
+      context: ../
+      dockerfile: ./build/build_linux.docker
+      args:
+        proxy_url: "${proxy_url}"
+    image: "rogersantos/is_running_in_docker:linux_x64_0.0.0.0"
+    stdin_open: true
+    tty: true
+    # entrypoint: /bin/bash
+    # ports:
+    #   - "10002:80"
+    #   - "4322:4322"
+    #   - "8000:8000"
+    # environment:
+    #   - http_proxy=http://gateway.zscaler.net:9480
+    #   - https_proxy=http://gateway.zscaler.net:9480
+

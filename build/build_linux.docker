@@ -1,0 +1,40 @@
+# Build 
+
+FROM ubuntu:bionic AS build
+WORKDIR /workspace
+
+### Install and Configure ZScale Certificate
+ARG proxy_url=""
+ENV http_proxy="${proxy_url}"
+ENV https_proxy="${proxy_url}"
+ADD "https://github.com/RogerioDosSantos/devops_machines/releases/download/dependencies/zscale.crt" /usr/local/share/ca-certificates
+# RUN echo "*** Install and Configure ZScale Certificate" \
+#   && echo "HTTP Proxy: ${http_proxy}" \
+#   && echo "HTTPS Proxy: ${https_proxy}" \
+#   && update-ca-certificates \
+#   && echo "*** Install and Configure ZScale Certificate - DONE" 
+
+### Install and Configure Build Components
+RUN echo "*** Install Build Components" \
+  && apt-get update \
+  && apt-get install -y \
+        build-essential \
+        git \
+        cmake \
+        autoconf \
+        libtool \
+        pkg-config \
+  && echo "*** Install Build Components - DONE"
+
+### Execute Build
+COPY ./src /workspace/src
+RUN echo "*** Building Project" \
+  && cd ./src \
+  && cmake . \ 
+  && make \
+  && echo "*** Building Project - DONE"
+
+FROM ubuntu:bionic AS release
+WORKDIR /opt/is_running_in_container
+COPY --from=build /workspace/src/is_running_in_container ./
+CMD ["./is_running_in_container"]
